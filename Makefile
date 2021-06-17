@@ -15,3 +15,6 @@ $(BINARIES)/% : src/%.cpp $(linearIncludes)
 
 clean:
 	rm -rf container ctexts
+	rm bin/inverse
+	rm bin/specialMult
+	rm bin/makeData
