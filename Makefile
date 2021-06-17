@@ -14,4 +14,4 @@ $(BINARIES)/% : src/%.cpp $(linearIncludes)
 	$(CXX)  $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS)
 
 clean:
-	rm bin/* container/* ctexts/*
+	rm -rf bin container ctexts
