@@ -54,13 +54,15 @@
     ctext_matrix matrix_mult(const PALISADEContainer&  pc,const ctext_matrix& matA, const ctext_matrix& matB){
         //returns the quotient of the matricies matA and matB
         ctext_matrix quotient(matA.size(), std::vector<ctext_typ>(matB[0].size()));
-
             for(size_t i=0; i< matA.size();i++){
-                for(size_t j=0; j < matB[i].size(); j++){
+                for(size_t j=0; j < matB[0].size(); j++){
+
                     ctext_typ sum = pc.context->EvalMult(matA[i][0], matB[0][j]);
+
                     for(size_t k=1; k<matA[0].size();k++){
                         pc.context->EvalAddInPlace(sum,pc.context->EvalMult(matA[i][k],matB[k][j]));
                     }
+
                     quotient[i][j] = sum;
                 }
             }
@@ -68,18 +70,6 @@
         return quotient;
 
     };
-
-    ctext_matrix packed_mult(const PALISADEContainer& pc, const ctext_matrix& matA, const ctext_matrix&matB){
-        ctext_matrix quotient(matA.size(), std::vector<ctext_typ>(matB[0].size()));
-
-        for(size_t i=0; i<matA.size();i++){
-            for(size_t j=0;j<matB[0].size();j++){
-                quotient[i][j] = pc.context->EvalMult(matA[i][0],matB[0][j]);
-            }
-        }
-
-        return quotient;
-    }
 
     ctext_matrix cofactor(const ctext_matrix& mat, size_t p, size_t q){
         //returns the matrix of cofactors as a new matrix
