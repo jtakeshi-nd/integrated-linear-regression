@@ -71,7 +71,6 @@ int main(int argc, char* argv[]){
         std::ofstream q("ctexts/quotient.ctext");
 
         //writing quotient to file for next steps
-        std::cout << quotient.size() << " " << quotient[0].size() << std::endl;
         for(int i=0;i<quotient.size();i++){
             for(int j=0;j<quotient[0].size();j++){
                 Serial::Serialize(quotient[i][j],q,SerType::BINARY);

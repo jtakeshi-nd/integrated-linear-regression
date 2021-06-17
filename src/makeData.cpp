@@ -141,11 +141,8 @@ void original(const PALISADEContainer& pc, const std::vector<std::vector<double>
     }
 
     std::ofstream mat("ctexts/original.ctext");
-    for(int j=0;j<p;j++){
-        //serialize x to file
-        for(int i=0;i<n;i++){
-            int col = floor((i*1.0)/N);
-            int row = j;
+    for(int col=0; col<p;col++){
+        for(int row=0; row<=floor((n*1.0)/N);row++){
             Serial::Serialize(matrix[row][col],mat,SerType::BINARY);
         }
     }
@@ -204,10 +201,8 @@ void transpose(const PALISADEContainer& pc, const std::vector<std::vector<double
     }
 
     std::ofstream tpose("ctexts/transpose.ctext");
-    for(int j=0;j<p;j++){
-        for(int i=0;i<n;i++){
-            int col = floor((i*1.0)/N);
-            int row = j;
+    for(int row=0; row<p;row++){
+        for(int col=0; col<=floor((n*1.0)/N);col++){
             Serial::Serialize(matrix[row][col],tpose,SerType::BINARY);
         }
     }
