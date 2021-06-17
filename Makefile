@@ -7,7 +7,8 @@ INCLUDE=include
 linearIncludes= $(INCLUDE)/matrix_operations.h $(INCLUDE)/PALISADEContainer.h
 all: $(BINARIES)/specialMult $(BINARIES)/makeData
 
-initialize: mkdir -p ctexts container bin
+initialize: 
+	mkdir -p ctexts container bin
 
 $(BINARIES)/% : src/%.cpp $(linearIncludes)
 	$(CXX)  $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS)
