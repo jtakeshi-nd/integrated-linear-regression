@@ -5,10 +5,12 @@ BINARIES=bin
 INCLUDE=include
 
 linearIncludes= $(INCLUDE)/matrix_operations.h $(INCLUDE)/PALISADEContainer.h
-all: $(BINARIES)/linearRegression $(BINARIES)/makeData
+all: $(BINARIES)/specialMult $(BINARIES)/makeData
+
+initialize: mkdir -p ctexts container bin
 
 $(BINARIES)/% : src/%.cpp $(linearIncludes)
 	$(CXX)  $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS)
 
 clean:
-	rm bin/linearRegression bin/makeData
+	rm bin/* container/* ctexts/*
