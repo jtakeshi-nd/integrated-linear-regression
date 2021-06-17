@@ -64,6 +64,17 @@ int main(int argc, char* argv[]){
 
     /* TODO: Read in dependent variable */
 
+    ctext_matrix quotient = matrix_mult(pc,inverse,xT);
+
+    ctext_matrix beta = matrix_mult(pc,quotient,y);
+
+    std::ofstream out("ctexts/beta.ctext");
+    for(int i=0; i<beta.size(); i++){
+        for(int j=0;j<beta[0].size();j++){
+            Serial::Serialize(beta[i][j],out,SerType::BINARY);
+        }
+    }
+
     
 
 
