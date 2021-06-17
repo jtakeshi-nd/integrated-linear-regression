@@ -41,15 +41,16 @@ int main(int argc, char* argv[]){
 
     std::ifstream original("ctexts/original.ctext");
     std::ifstream transpose("ctexts/transpose.ctext");
-    std::ifstream dependent("ctexts/dependent.ctext");
 
     if(pack){
-
+        /* TODO: Write packing in the special Mult file
+         * use the correct form of packing after Jon shows you */
     }
     else{
         ctext_matrix x((n/B) ? n/B : 1,std::vector<ctext_typ>(p));
         ctext_matrix xT(p,std::vector<ctext_typ>(((n/B) ? n/B : 1)));
 
+        //reading in the original X
         for(int col=0;col<p;col++){
             for(int row=0;row<(floor(n/N)+1);row++){
                 Serial::Deserialize(x[row][col],original,SerType::BINARY);
@@ -57,25 +58,25 @@ int main(int argc, char* argv[]){
             }
         }
 
+        //reading in xT
         for(int row=0;row<p;row++){
             for(int col=0;col<(floor(n/N)+1);col++){
                 Serial::Deserialize(xT[row][col],transpose,SerType::BINARY);
             }
         }
         
+        //calculate xT * X
         ctext_matrix quotient = matrix_mult(pc,xT,x);
 
         std::ofstream q("quotient.ctext");
 
+        //writing quotient to file for next steps
         std::cout << quotient.size() << " " << quotient[0].size() << std::endl;
         for(int i=0;i<quotient.size();i++){
             for(int j=0;j<quotient[0].size();j++){
                 Serial::Serialize(quotient[i][j],q,SerType::BINARY);
             }
         }
-
-
-
 
     }
 
