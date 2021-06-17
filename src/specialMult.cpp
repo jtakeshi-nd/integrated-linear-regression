@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
         //calculate xT * X
         ctext_matrix quotient = matrix_mult(pc,xT,x);
 
-        std::ofstream q("quotient.ctext");
+        std::ofstream q("ctexts/quotient.ctext");
 
         //writing quotient to file for next steps
         std::cout << quotient.size() << " " << quotient[0].size() << std::endl;
@@ -77,7 +77,6 @@ int main(int argc, char* argv[]){
                 Serial::Serialize(quotient[i][j],q,SerType::BINARY);
             }
         }
-
     }
 
 
