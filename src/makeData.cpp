@@ -60,16 +60,17 @@ int main(int argc, char* argv[]){
     for(int i=0; i<n; i++){ // create the raw data values to be batched into ciphertexts
         double tmp = numbgen()%1000000;
         rawValues.push_back({tmp});
+        std::cout << rawValues[i][0] << " ";
         for(int j=1; j<p; j++){
             tmp = numbgen()%1000000;
             rawValues[i].push_back(tmp);
+            std::cout << tmp << " ";
         }
+        std::cout << std::endl;
     }
 
     transpose(pc,rawValues,p,n,N);
     std::cout << "transpose" << std::endl;
-    transpose_unpacked(pc,rawValues,p,n,N);
-    std::cout << "unpacked" << std::endl;
     original(pc,rawValues,p,n,N);
     std::cout << "original" << std::endl;
 
@@ -140,11 +141,8 @@ void original(const PALISADEContainer& pc, const std::vector<std::vector<double>
     }
 
     std::ofstream mat("ctexts/original.ctext");
-    for(int j=0;j<p;j++){
-        //serialize x to file
-        for(int i=0;i<n;i++){
-            int col = floor((i*1.0)/N);
-            int row = j;
+    for(int col=0; col<p;col++){
+        for(int row=0; row<=floor((n*1.0)/N);row++){
             Serial::Serialize(matrix[row][col],mat,SerType::BINARY);
         }
     }
@@ -203,10 +201,8 @@ void transpose(const PALISADEContainer& pc, const std::vector<std::vector<double
     }
 
     std::ofstream tpose("ctexts/transpose.ctext");
-    for(int j=0;j<p;j++){
-        for(int i=0;i<n;i++){
-            int col = floor((i*1.0)/N);
-            int row = j;
+    for(int row=0; row<p;row++){
+        for(int col=0; col<=floor((n*1.0)/N);col++){
             Serial::Serialize(matrix[row][col],tpose,SerType::BINARY);
         }
     }
