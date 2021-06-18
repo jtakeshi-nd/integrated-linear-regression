@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
     size_t B = N/2;
 
 
-    std::ifstream inv("ctexts/inverse.ctext");
+    std::ifstream inv("ctexts/inv.ctext");
     std::ifstream transpose("ctexts/transpose.ctext");
     std::ifstream dependent("ctexts/dependent");
 
@@ -57,12 +57,17 @@ int main(int argc, char* argv[]){
 
     //reading in xT
     for(int row=0;row<p;row++){
-        for(int col=0;col<(floor(n/N)+1);col++){
+        for(int col=0;col<(floor(n/N) ? floor(n/N) : 1);col++){
             Serial::Deserialize(xT[row][col],transpose,SerType::BINARY);
         }
     }
 
     /* TODO: Read in dependent variable */
+    ctext_matrix y((floor(n%B) ? floor(n%B) : 1), std::vector<ctext_typ>(1));
+
+    for(int index =0; index < floor(n%B) ? floor(n%B) : 1; index++){
+        Serial::Deserialize(y[index][0],dependent,SerType::BINARY);
+    }
 
     ctext_matrix quotient = matrix_mult(pc,inverse,xT);
 
