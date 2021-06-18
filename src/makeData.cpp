@@ -18,7 +18,6 @@ void usage(int);
 ctext_typ rotate(const PALISADEContainer&, const ctext_typ&, const int&);
 void transpose(const PALISADEContainer&, const std::vector<std::vector<double>>&, const size_t&, const size_t&, const size_t&);
 void original(const PALISADEContainer&, const std::vector<std::vector<double>>&, const size_t&, const size_t&, const size_t&);
-void transpose_unpacked(const PALISADEContainer&, const std::vector<std::vector<double>>&, const size_t&, const size_t&, const size_t&);
 
 int main(int argc, char* argv[]){
     size_t p = 10; //default value for number of parameters
@@ -58,11 +57,11 @@ int main(int argc, char* argv[]){
     std::vector<std::vector<double>> rawValues;
 
     for(int i=0; i<n; i++){ // create the raw data values to be batched into ciphertexts
-        double tmp = numbgen()%1000000;
+        double tmp = numbgen()%10;
         rawValues.push_back({tmp});
         std::cout << rawValues[i][0] << " ";
         for(int j=1; j<p; j++){
-            tmp = numbgen()%1000000;
+            tmp = numbgen()%10;
             rawValues[i].push_back(tmp);
             std::cout << tmp << " ";
         }
@@ -74,22 +73,25 @@ int main(int argc, char* argv[]){
     original(pc,rawValues,p,n,N);
     std::cout << "original" << std::endl;
 
-    std::vector<ctext_typ> y(n);
+    std::vector<ctext_typ> y(floor(n/N) ? floor(n/N) : 1);
 
     std::ofstream yfile("ctexts/dependent.ctext");
+
+    for(int i=0;i<(floor((i*1.0)/N) ? floor((i*1.0)/N) : 1); i++){
+        std::vector<double> tmp(N,0);
+        y[i] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
+    }
 
 
     for(int i=0;i<n;i++){
 
         int index = floor((i*1.0)/N);
-
-        //initialize the vector
-        std::vector<double> tmp(n,0);
-        y[index] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
+        std::vector<double> tmp(N,0);
 
         
         //prep the random value
-        tmp[i] = (double)numbgen();
+        tmp[i%N] = (double)(numbgen()%10);
+        std::cout << tmp[i%N] << std::endl;
         Plaintext ptx = pc.context->MakeCKKSPackedPlaintext(tmp);
         ctext_typ ctx = pc.context->Encrypt(pc.pk,ptx);
 
@@ -97,12 +99,11 @@ int main(int argc, char* argv[]){
         //ctx = rotate(pc,ctx,i%N);
         pc.context->EvalAddInPlace(y[index],ctx);
     } 
-
-    for(int i=0;i<n;i++){
-        int index = floor((i*1.0)/N);
-
-        Serial::Serialize(y[index],yfile,SerType::BINARY);
+    for(int i=0;i<(floor(n/N) ? floor(n/N) : 1) ;i++){
+        Serial::Serialize(y[i],yfile,SerType::BINARY);
     }
+
+
     pc.serialize("container",true);
 
 
@@ -144,25 +145,6 @@ void original(const PALISADEContainer& pc, const std::vector<std::vector<double>
     for(int col=0; col<p;col++){
         for(int row=0; row<=floor((n*1.0)/N);row++){
             Serial::Serialize(matrix[row][col],mat,SerType::BINARY);
-        }
-    }
-}
-
-void transpose_unpacked(const PALISADEContainer& pc, const std::vector<std::vector<double>>& rawValues, const size_t& p, const size_t& n, const size_t& N){
-    ctext_matrix mat(p,std::vector<ctext_typ>(n));
-
-    for(int j=0;j<p;j++){
-        for(int i=0; i<n;i++){
-            std::vector<double> tmp = {rawValues[i][j]};
-            Plaintext ptx = pc.context->MakeCKKSPackedPlaintext(tmp);
-            mat[j][i] = pc.context->Encrypt(pc.pk,ptx);
-        }
-    }
-
-    std::ofstream out("ctexts/unpacked.ctext");
-    for(int j=0;j<p;j++){
-        for(int i=0;i<n;i++){
-            Serial::Serialize(mat[j][i],out,SerType::BINARY);
         }
     }
 }
