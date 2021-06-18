@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
         for(int j=0;j<beta[0].size();j++){
             Serial::Serialize(beta[i][j],out,SerType::BINARY);
         }
-    }
+    } 
 
     
 
