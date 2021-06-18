@@ -1,5 +1,4 @@
 #include "../include/PALISADEContainer.h"
-
 #include "../include/matrix_operations.h"
 #include <iostream>
 #include <cstdlib>
@@ -44,6 +43,7 @@ int main(int argc, char *argv[]) {
 					break;
 				case 'p':
 					p = atoi(argv[++i]);
+					break;
 				default:
 					exit(EXIT_FAILURE);
 			}
@@ -52,16 +52,19 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	std::cout << "Running" << std::endl;
 	// Read in X tranpose times X data and decrypt
 	std::string ctr = "container";
 	PALISADEContainer pc(ctr, true);
 
 	vector<vector<double>> data;
-	std::ifstream mult("../ctexts/quotient.txt");
+	std::ifstream mult("ctexts/quotient.txt");
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < p; j++) {
 			Plaintext pt;
-			pc.context->Decrypt(pc.sk, _____, &pt);
+			Ciphertext<DCRTPoly> ct;
+			Serial::Deserialize(ct, mult, SerType::BINARY);
+			pc.context->Decrypt(pc.sk, ct, &pt);
 			std::vector<double> tmp = pt->GetRealPackedValue();
 			double value = 0;
 			for (int i = 0; i < tmp.size(); i++) {
@@ -74,13 +77,18 @@ int main(int argc, char *argv[]) {
 	// Run inverse program
 
 
-
+	for (int i = 0; i < data.size(); i++) {
+		for (int j = 0; j < data[i].size(); j++) {
+			std::cout << data[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
 
 
 	// Encrypt inverted matrix and output to file
 
 
-
+	return 0;
 }
 
 void cofactors(vector<vector<double>>& m, vector<vector<double>>& cofs, int p, int q, int n) {
