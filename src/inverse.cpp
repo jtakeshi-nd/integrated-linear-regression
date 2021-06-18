@@ -17,21 +17,6 @@ void adjoint(vector<vector<double>>& m, vector<vector<double>>& a, int p);
 void inverse(vector<vector<double>>& m, int p);
 
 int main(int argc, char *argv[]) {
-	/*PALISADEContainer pc(1024, 1, 1024);
-
-	std::vector<double> test = {1, 2, 3};
-
-	Plaintext ptext = pc.context->MakeCKKSPackedPlaintext(test);
-
-	ctext_typ ctext = pc.context->Encrypt(pc.pk, ptext);
-
-	Plaintext decrypted;
-
-	pc.context->Decrypt(pc.sk, ctext, &decrypted);
-
-	std::vector<double> raw_data = decrypted->GetRealPackedValue();
-
-	std::cout << raw_data << std::endl;*/
 
 	// Parse Command Line Arguments 
 	size_t n, p;
@@ -52,13 +37,12 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	std::cout << "Running" << std::endl;
 	// Read in X tranpose times X data and decrypt
 	std::string ctr = "container";
 	PALISADEContainer pc(ctr, true);
-
 	vector<vector<double>> data(p);
 	std::ifstream mult("ctexts/quotient.ctext");
+
 	for (int i = 0; i < p; i++) {
 		for (int j = 0; j < p; j++) {
 			Plaintext pt;
@@ -73,21 +57,22 @@ int main(int argc, char *argv[]) {
 			data[i].push_back(value);
 		}
 	}
-
+	
 	// Run inverse program
-
-
-	for (int i = 0; i < data.size(); i++) {
-		for (int j = 0; j < data[i].size(); j++) {
-			std::cout << data[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-
+	inverse(data, p);
 
 	// Encrypt inverted matrix and output to file
+	std::ofstream inv("ctexts/inv.ctext");
+	
+	for (int i = 0; i < p; i++) {
+		for (int j = 0; j < p; j++) {
+			std::vector<double> tmp = {data[i][j]};
+			Plaintext pt = pc.context->MakeCKKSPackedPlaintext(tmp);
+			Serial::Serialize(pc.context->Encrypt(pc.pk, pt), inv, SerType::BINARY);
+		}
+	}
 
-
+	std::cout << "Wrote inverse to ctexts/inverse.ctext" << std::endl;
 	return 0;
 }
 
