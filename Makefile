@@ -5,7 +5,7 @@ BINARIES=bin
 INCLUDE=include
 
 linearIncludes= $(INCLUDE)/matrix_operations.h $(INCLUDE)/PALISADEContainer.h
-all: $(BINARIES)/specialMult $(BINARIES)/makeData $(BINARIES)/inverse $(BINARIES)/secondMult graphene 
+all: $(BINARIES)/specialMult $(BINARIES)/makeData $(BINARIES)/inverse $(BINARIES)/secondMult $(BINARIES)/beta_dec graphene 
 
 graphene: 
 	mkdir -p graphene/container graphene/ctexts
