@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
         //calculate xT * X
         ctext_matrix quotient = matrix_mult(pc,xT,x);
 
-        std::ofstream q("ctexts/quotient.ctext");
+        std::ofstream q("ctexts/product_left.ctext");
 
         //writing quotient to file for next steps
         for(int i=0;i<quotient.size();i++){

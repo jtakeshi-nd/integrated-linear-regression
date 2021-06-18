@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 
     ctext_matrix quotient = matrix_mult(pc,xT,y);
 
-    std::ofstream out("ctexts/second_quotient.ctext");
+    std::ofstream out("ctexts/product_right.ctext");
 
     for(int i=0; i<quotient.size(); i++){
         for(int j=0;j<quotient[0].size();j++){
