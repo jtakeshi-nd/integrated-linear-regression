@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	PALISADEContainer pc(ctr, true);
 
 	vector<vector<double>> data;
-	std::ifstream mult("ctexts/quotient.txt");
+	std::ifstream mult("ctexts/quotient.ctext");
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < p; j++) {
 			Plaintext pt;
