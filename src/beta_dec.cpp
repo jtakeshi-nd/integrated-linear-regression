@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 		for (int i = 0; i < tmp.size(); i++) {
 			value += tmp[i];
 		}
-		fprintf(beta, "%f\n", value);
+		fprintf(res, "%f\n", value);
 	}
 
 	flose(beta);
