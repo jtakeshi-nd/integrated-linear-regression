@@ -5,13 +5,22 @@ BINARIES=bin
 INCLUDE=include
 
 linearIncludes= $(INCLUDE)/matrix_operations.h $(INCLUDE)/PALISADEContainer.h
-all: $(BINARIES)/specialMult $(BINARIES)/makeData
+all: $(BINARIES)/specialMult $(BINARIES)/makeData $(BINARIES)/inverse graphene
+
+graphene: 
+	mkdir -p graphene/container graphene/ctexts
+	cp bin/* graphene/
+
 
 initialize: 
-	mkdir -p ctexts container bin
+	mkdir -p ctexts container
 
 $(BINARIES)/% : src/%.cpp $(linearIncludes)
 	$(CXX)  $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS)
 
 clean:
-	rm bin/* container/* ctexts/*
+	rm -rf container ctexts
+	rm bin/inverse
+	rm bin/specialMult
+	rm bin/makeData
+	rm -r graphene/
