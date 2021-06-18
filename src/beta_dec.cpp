@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 		fprintf(res, "%f\n", value);
 	}
 
-	flose(beta);
+	fclose(res);
 
 	return 0;
 }
