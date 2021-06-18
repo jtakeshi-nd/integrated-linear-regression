@@ -24,9 +24,12 @@ fs.mount.tmp.path = "/tmp"
 fs.mount.tmp.uri = "file:/tmp"
 
 sgx.trusted_files.inverse = "file:./inverse"
-sgx.allowed_files.xdata = "file:./enc_x.txt"
-sgx.allowed_files.ydata = "file:./enc_y.txt"
-sgx.allowed_files.beta = "file:./beta.txt"
+sgx.allowed_files.quotient = "file:../ctexts/quotient.txt"
+sgx.allowed_files.context = "file:../container/context"
+sgx.allowed_files.emkey = "file:../container/emkey"
+sgx.allowed_files.pubkey = "file:../container/pubkey"
+sgx.allowed_files.rotkey = "file:../container/rotkey"
+sgx.allowed_files.seckey = "file:../container/seckey"
 
 sgx.enclave_size = "1G"
 sgx.nonpie_binary = 1
