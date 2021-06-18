@@ -8,8 +8,8 @@ linearIncludes= $(INCLUDE)/matrix_operations.h $(INCLUDE)/PALISADEContainer.h
 all: $(BINARIES)/specialMult $(BINARIES)/makeData $(BINARIES)/inverse $(BINARIES)/secondMult 
 
 initialize: 
-	mkdir -p bin/ctexts bin/container result
-	touch result/beta.txt
+	mkdir -p bin/ctexts bin/container bin/result
+	touch bin/result/beta.txt
 
 $(BINARIES)/% : src/%.cpp $(linearIncludes)
 	$(CXX)  $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS)
@@ -21,4 +21,4 @@ clean:
 	rm -f bin/secondMult
 	rm -rf bin/container
 	rm -rf bin/ctexts
-	rm -rf result
+	rm -rf bin/result

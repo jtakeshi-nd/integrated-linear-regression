@@ -59,21 +59,16 @@ int main(int argc, char* argv[]){
     for(int i=0; i<n; i++){ // create the raw data values to be batched into ciphertexts
         double tmp = numbgen()%10;
         rawValues.push_back({tmp});
-        std::cout << rawValues[i][0] << " ";
-        for(int j=1; j<p; j++){
+         for(int j=1; j<p; j++){
             tmp = numbgen()%10;
             rawValues[i].push_back(tmp);
-            std::cout << tmp << " ";
         }
-        std::cout << std::endl;
     }
 
     transpose(pc,rawValues,p,n,N);
-    std::cout << "transpose" << std::endl;
     original(pc,rawValues,p,n,N);
-    std::cout << "original" << std::endl;
 
-    std::vector<ctext_typ> y(floor(n/N) ? floor(n/N) : 1);
+	std::vector<ctext_typ> y(floor(n/N) ? floor(n/N) : 1);
 
     std::ofstream yfile("ctexts/dependent.ctext");
 
@@ -91,7 +86,6 @@ int main(int argc, char* argv[]){
         
         //prep the random value
         tmp[i%N] = (double)(numbgen()%10);
-        std::cout << tmp[i%N] << std::endl;
         Plaintext ptx = pc.context->MakeCKKSPackedPlaintext(tmp);
         ctext_typ ctx = pc.context->Encrypt(pc.pk,ptx);
 

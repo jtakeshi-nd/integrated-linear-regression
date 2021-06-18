@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 	vector<vector<double>> res = multiply(prod_left, prod_right);
 
 	// Write p x 1 beta vector to beta.txt
-	FILE* beta = fopen("../result/beta.txt", "r+");
+	FILE* beta = fopen("result/beta.txt", "w+");
 	if (!beta) {
 		fprintf(stderr, "Unable to open beta.txt: %s\n", strerror(errno));
 		return EXIT_FAILURE;

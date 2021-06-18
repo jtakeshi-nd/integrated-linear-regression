@@ -31,7 +31,7 @@ sgx.allowed_files.emkey = "file:container/emkey"
 sgx.allowed_files.pubkey = "file:container/pubkey"
 sgx.allowed_files.rotkey = "file:container/rotkey"
 sgx.allowed_files.seckey = "file:container/seckey"
-sgx.allowed_files.beta = "file:../result/beta.txt"
+sgx.allowed_files.beta = "file:result/beta.txt"
 
 sgx.enclave_size = "1G"
 sgx.nonpie_binary = 1
