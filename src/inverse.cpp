@@ -57,9 +57,9 @@ int main(int argc, char *argv[]) {
 	std::string ctr = "container";
 	PALISADEContainer pc(ctr, true);
 
-	vector<vector<double>> data;
+	vector<vector<double>> data(p);
 	std::ifstream mult("ctexts/quotient.ctext");
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < p; i++) {
 		for (int j = 0; j < p; j++) {
 			Plaintext pt;
 			Ciphertext<DCRTPoly> ct;
