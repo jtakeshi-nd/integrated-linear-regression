@@ -63,52 +63,14 @@ int main(int argc, char *argv[]) {
 
 	// Encrypt inverted matrix and output to file
 	std::ofstream inv("ctexts/inv.ctext");
-	size_t N = pc.context->GetCyclotomicOrder() >>2;
-	size_t B = N/2;
-
-	ctext_matrix matrix(p,std::vector<ctext_typ>((floor(p/B) ? floor(p/B) : 1 )));
-
-	for(int col=0; col<=floor((p*1.0)/B);col++){
-        for(int row=0; row<p;row++){
-            //initializing ciphertexts for x
-            std::vector<double> tmp = {0};
-            matrix[row][col] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
-        }
-    }
-
-	for(int j=0; j<p;j++){ //create the ciphertexts to be batched 
-        //batching in col
-        for(int i=0; i<p;i++){
-            
-
-            int col = floor((j*1.0)/B);
-            int row = i;
-
-            std::vector<double> tmp(n,0);
-            tmp[j] = data[i][j];
-
-            Plaintext ptx = pc.context->MakeCKKSPackedPlaintext(tmp);
-            
-            ctext_typ ctx = pc.context->Encrypt(pc.pk,ptx);
-
-            //ctx = rotate(pc,ctx,i%N);
-            pc.context->EvalAddInPlace(matrix[row][col],ctx);
-        }
-    }
-
-	for(int col=0; col<=floor((p*1.0)/B);col++){
-        for(int row=0; row<p;row++){
-            Serial::Serialize(matrix[row][col],inv,SerType::BINARY);
-        }
-    }
 	
-	/*for (int i = 0; i < p; i++) {
+	for (int i = 0; i < p; i++) {
 		for (int j = 0; j < p; j++) {
 			std::vector<double> tmp = {data[i][j]};
 			Plaintext pt = pc.context->MakeCKKSPackedPlaintext(tmp);
 			Serial::Serialize(pc.context->Encrypt(pc.pk, pt), inv, SerType::BINARY);
 		}
-	} */
+	} 
 
 	std::cout << "Wrote inverse to ctexts/inverse.ctext" << std::endl;
 	return 0;
