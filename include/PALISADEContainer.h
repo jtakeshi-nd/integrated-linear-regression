@@ -12,7 +12,7 @@
 #include <cryptocontext.h>
 #include <cryptocontext-ser.h>
 #include <pubkeylp-ser.h>
-#include <scheme/ckks/ckks-ser.h>
+#include <scheme/bgvrns/bgvrns-ser.h>
 //#include <utils/serialize-binary.h>
 #include <utils/serial.h>
 
@@ -55,11 +55,12 @@ public:
   unsigned int _plain_modulus = 0;
   unsigned int depth = 0;
 
+  /*
   //PALISADEContainer operator=(const PALISADEContainer & other) = default;
   //TODO may have to redefine these macros, or remove altogether
   //See https://gitlab.com/palisade/palisade-development/-/blob/master/src/pke/examples/simple-integers-serial.cpp
   //This constructor is for BGV - see new one below for CKKS
-  /*PALISADEContainer(const unsigned int plain_in = PLAIN_DEFAULT, const unsigned int depth_in = DEPTH_DEFAULT, 
+  PALISADEContainer(const unsigned int plain_in = PLAIN_DEFAULT, const unsigned int depth_in = DEPTH_DEFAULT, 
                     const unsigned int slots_in = BATCHSIZE_DEFAULT) : _plain_modulus(plain_in), depth(depth_in) {
     //See https://gitlab.com/palisade/palisade-release/-/blob/master/src/pke/include/cryptocontext.h
     context = CryptoContextFactory<DCRTPoly>::genCryptoContextBGVrns(depth, _plain_modulus, SECURITY, SIGMA, depth, OPTIMIZED, BV);
@@ -80,22 +81,21 @@ public:
 
     context->EvalMultKeysGen(sk);
     this->_has_secret_key = true;
-  } */
+  }
+  */
 
   //CKKS constructor - quick+dirty impl., not parameterized
   //Default for m should be 8192
-  PALISADEContainer(unsigned int m, unsigned int depth_in, unsigned int p){
-    static const int dcrtBits = 40;
+  PALISADEContainer(/* unsigned int m, */ unsigned int depth_in /*, unsigned int p*/){
     depth = depth_in;
-    _plain_modulus = 0;
-    unsigned int batchSize = m >> 2;
+    _plain_modulus = 0; //Not used in CKKS
+    //unsigned int batchSize = m >> 2;
+    uint32_t batchSize = 8; //Will be overwritten later, so any value can be used
 
-    context =
-      CryptoContextFactory<DCRTPoly>::genCryptoContextCKKSWithParamsGen(
-          m, depth, /*numPrimes*/
-          dcrtBits, 10, /*relinWindow*/
-          batchSize,           /*batch size*/
-          OPTIMIZED, depth /*depth*/);
+    //Simpler method based on https://gitlab.com/palisade/palisade-release/-/blob/master/src/pke/examples/simple-real-numbers.cpp
+    this->context = CryptoContextFactory<DCRTPoly>::genCryptoContextCKKS(
+          depth, SCALE_FACTOR_BITS, batchSize, SECURITY);
+    context->GetEncodingParams()->SetBatchSize(this->ring_dimension()/2);
 
 
     context->Enable(ENCRYPTION);
@@ -111,12 +111,13 @@ public:
     pk = keyPair.publicKey;
     sk = keyPair.secretKey;
 
+    /*
+    //Rotation keys no longer needed
     context->EvalMultKeysGen(sk);
     this->_has_secret_key = true;
     //Generate rotation keys for ((N/2)/D)+1 of the indices
     //Let's start with (N/2)/D = 2, for a 50% reduction in the key switching
     vector<int> indices;
-    unsigned int N = context->GetRingDimension()/2;
     int B = N/2;
     int reduction_factor = sqrt(B); //Factor we want to reduce by
     int D = B/reduction_factor; //Step size - need to generate all keys from 1 to D, and all multiples of D
@@ -132,8 +133,9 @@ public:
 
     //Hopefully this does not take up too much memory
     //May have to serialize these
-    context->EvalAtIndexKeyGen(sk, indices);
-  } 
+    cc->EvalAtIndexKeyGen(sk, indices);
+    */
+  }
 
   //This will fail if called on a nonexistent or empty file
   PALISADEContainer(const std::string & containername, const bool load_sk){
@@ -177,7 +179,7 @@ public:
   }
   */
 
-  int serialize(const std::string & ofname, const bool save_sk){
+  int serialize(std::string & ofname, const bool save_sk){
     //Context
     std::string context_name = ofname + '/' + CONTEXT_FILE;
     if(!Serial::SerializeToFile(context_name, context, SERIAL_FORMAT)){
@@ -212,6 +214,7 @@ public:
       }
     }
     //With separate files, the order doesn't matter
+    /*
     std::string rot_file = ofname + '/' + ROTKEY_FILE;
     std::ofstream rots(rot_file, std::ios::out | std::ios::binary);
     if(!rots.is_open()){
@@ -222,6 +225,7 @@ public:
       std::cerr << "Failed to write rotkey: " << rlk_file << std::endl;
       return 1;
     }
+    */
     return 0;
   }
 
@@ -294,6 +298,7 @@ public:
         return 1;
       }
     }
+    /*
     std::string rot_file = fname + '/' + ROTKEY_FILE;
     std::ifstream rots(rot_file, std::ios::in | std::ios::binary);
     if(!rots.is_open()){
@@ -303,6 +308,7 @@ public:
       std::cerr << "ERROR: failed to deserialize rotation keys from " << rot_file << std::endl;
       return 1;
     }
+    */
     return 0;
   }
   
