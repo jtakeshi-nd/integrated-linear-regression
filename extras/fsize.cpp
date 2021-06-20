@@ -1,4 +1,4 @@
-// g++ -I /usr/local/include/palisade/binfhe -I /usr/local/include/palisade/cereal -I /usr/local/include/palisade/pke -I /usr/local/include/palisade/core -I /usr/local/include/palisade ./fsize.cpp -L /usr/local/lib -l PALISADEabe -l PALISADEbinfhe -l PALISADEcore -l PALISADEpke -l PALISADEsignature -Wl,-rpath=/usr/local/lib -pthread -fopenmp -O3
+// g++ -I /usr/local/include/palisade/binfhe -I /usr/local/include/palisade/cereal -I /usr/local/include/palisade/pke -I /usr/local/include/palisade/core -I /usr/local/include/palisade ./fsize.cpp -L /usr/local/lib -l PALISADEabe -l PALISADEbinfhe -l PALISADEcore -l PALISADEpke -l PALISADEsignature -Wl,-rpath=/usr/local/lib -pthread -fopenmp -O3 -o fsize
 #include <iostream>
 #include <vector>
 #include <string>
