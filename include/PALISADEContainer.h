@@ -111,10 +111,13 @@ public:
     pk = keyPair.publicKey;
     sk = keyPair.secretKey;
 
-    /*
-    //Rotation keys no longer needed
+    
     context->EvalMultKeysGen(sk);
     this->_has_secret_key = true;
+
+
+    /*
+    //Rotation keys no longer needed
     //Generate rotation keys for ((N/2)/D)+1 of the indices
     //Let's start with (N/2)/D = 2, for a 50% reduction in the key switching
     vector<int> indices;
@@ -135,6 +138,44 @@ public:
     //May have to serialize these
     cc->EvalAtIndexKeyGen(sk, indices);
     */
+  }
+
+  PALISADEContainer(unsigned int depth_in, unsigned int m /*, unsigned int p*/){
+    depth = depth_in;
+    _plain_modulus = 0; //Not used in CKKS
+    unsigned int batchSize = m / 4;
+    
+    unsigned int primes = depth+1; //ok for thousands of additions, not millions
+    /*
+    if(primes >= 3){
+      primes--;
+    }
+    */
+
+    context =
+      CryptoContextFactory<DCRTPoly>::genCryptoContextCKKSWithParamsGen(
+          m, primes, /*numPrimes*/
+          SCALE_FACTOR_BITS, 10, /*relinWindow*/
+          batchSize,           /*batch size*/
+          OPTIMIZED, depth /*depth*/);
+
+
+    context->Enable(ENCRYPTION);
+    context->Enable(SHE);
+    context->Enable(LEVELEDSHE);
+    
+
+    LPKeyPair<DCRTPoly> keyPair = context->KeyGen();
+    if (!keyPair.good()) {
+      std::cerr << "Key generation failed!" << std::endl;
+      exit(1);
+    }
+    pk = keyPair.publicKey;
+    sk = keyPair.secretKey;
+
+    
+    context->EvalMultKeysGen(sk);
+    this->_has_secret_key = true;
   }
 
   //This will fail if called on a nonexistent or empty file
