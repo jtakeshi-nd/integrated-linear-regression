@@ -52,8 +52,6 @@ int main(int argc, char* argv[]){
         }
     }
 
-
-    std::cout << "read transpose" << std::endl;
     
 
     ctext_matrix y((floor(n/B) ? floor(n/B) : 1), std::vector<ctext_typ>(1));
@@ -61,8 +59,6 @@ int main(int argc, char* argv[]){
     for(int index =0; index < (floor(n/B) ? floor(n/B) : 1); index++){
         Serial::Deserialize(y[index][0],dependent,SerType::BINARY);
     }
-
-    std::cout << "read dependent" << std::endl;
 
     ctext_matrix quotient = matrix_mult(pc,xT,y);
 
