@@ -1,7 +1,7 @@
 PALISADE_INCLUDES= -I /usr/local/include/palisade/binfhe -I /usr/local/include/palisade/cereal -I /usr/local/include/palisade/pke -I /usr/local/include/palisade/core -I /usr/local/include/palisade
 PALISADE_STATIC_LIBS=/usr/local/lib/libPALISADEbinfhe_static.a /usr/local/lib/libPALISADEpke_static.a /usr/local/lib/libPALISADEcore_static.a 
 PALISADE_DYNAMIC_LIBS_LOCATION=/usr/local/lib
-PALISADE_DYNAMIC_LIBS=-l PALISADEabe -l PALISADEbinfhe -l PALISADEcore -l PALISADEpke -l PALISADEsignature
+PALISADE_DYNAMIC_LIBS= -l PALISADEbinfhe -l PALISADEcore -l PALISADEpke 
 CXX=g++
 BINARIES=bin
 INCLUDE=include
