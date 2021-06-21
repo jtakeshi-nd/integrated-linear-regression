@@ -6,6 +6,7 @@ libos.entrypoint = "file:./inverse"
 
 # Read application arguments directly from the command line. Don't use this on production!
 loader.insecure__use_cmdline_argv = 1
+loader.insecure__use_host_env = 1
 
 fs.mount.lib1.type = "chroot"
 fs.mount.lib1.path = "/lib"
@@ -24,6 +25,9 @@ fs.mount.tmp.path = "/tmp"
 fs.mount.tmp.uri = "file:/tmp"
 
 sgx.trusted_files.inverse = "file:./inverse"
+sgx.trusted_files.PALISADEcore = "file:/usr/local/lib/libPALISADEcore.so.1"
+sgx.trusted_files.PALISADEpke = "file:/usr/local/lib/libPALISADEpke.so.1"
+sgx.trusted_files.PALISADEbinfhe = "file:/usr/local/lib/libPALISADEbinfhe.so.1"
 sgx.allowed_files.product_left = "file:ctexts/product_left.ctext"
 sgx.allowed_files.product_right = "file:ctexts/product_right.ctext"
 sgx.allowed_files.context = "file:container/context"
