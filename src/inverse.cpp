@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
 		}
 		prod_right[i].push_back(value);
 	}
+
 	
 	// Run inverse algorithm on X'X
 	inverse(prod_left, p);
@@ -94,7 +95,6 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(beta);
 		
-	std::cout << "Wrote beta vector to ../result/beta.txt" << std::endl;
 	return 0;
 }
 

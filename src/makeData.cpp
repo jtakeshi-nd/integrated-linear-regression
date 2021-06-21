@@ -53,7 +53,7 @@ int main(int argc, char* argv[]){
     std::mt19937 numbgen(seed); //initialize the random number generator with a seed
     size_t N = (m>>2)/2;
 
-    PALISADEContainer pc(m,4,1024);
+    PALISADEContainer pc(1,m); //ask about which constructor to use
     std::vector<std::vector<double>> rawValues;
 
     for(int i=0; i<n; i++){ // create the raw data values to be batched into ciphertexts
