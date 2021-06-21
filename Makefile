@@ -7,7 +7,7 @@ BINARIES=bin
 INCLUDE=include
 
 linearIncludes= $(INCLUDE)/matrix_operations.h $(INCLUDE)/PALISADEContainer.h
-all: $(BINARIES)/specialMult $(BINARIES)/makeData $(BINARIES)/inverse $(BINARIES)/secondMult 
+all: $(BINARIES)/firstMult $(BINARIES)/makeData $(BINARIES)/inverse $(BINARIES)/secondMult 
 
 initialize: 
 	mkdir -p bin/ctexts bin/container bin/result
@@ -18,7 +18,7 @@ $(BINARIES)/% : src/%.cpp $(linearIncludes)
 
 clean:
 	rm -f bin/inverse
-	rm -f bin/specialMult
+	rm -f bin/firstMult
 	rm -f bin/makeData
 	rm -f bin/secondMult
 	rm -rf bin/container
