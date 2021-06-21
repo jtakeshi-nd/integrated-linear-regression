@@ -220,7 +220,7 @@ public:
   }
   */
 
-  int serialize(std::string & ofname, const bool save_sk){
+  int serialize(const std::string & ofname, const bool save_sk){
     //Context
     std::string context_name = ofname + '/' + CONTEXT_FILE;
     if(!Serial::SerializeToFile(context_name, context, SERIAL_FORMAT)){
