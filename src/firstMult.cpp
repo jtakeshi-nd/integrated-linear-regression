@@ -35,10 +35,12 @@ int main(int argc, char* argv[]){
         else
             exit(EXIT_FAILURE);
     }
+    //read in container made by makeData
     PALISADEContainer pc(ctr,true);
     size_t N = (pc.context->GetCyclotomicOrder() >> 2);
-    size_t B = N/2;
+    size_t B = N/2; //need for batching
 
+    //hard coded names: could change
     std::ifstream original("ctexts/original.ctext");
     std::ifstream transpose("ctexts/transpose.ctext");
 
@@ -47,6 +49,7 @@ int main(int argc, char* argv[]){
          * use the correct form of packing after Jon shows you */
     }
     else{
+
         ctext_matrix x((n/B) ? n/B : 1,std::vector<ctext_typ>(p));
         ctext_matrix xT(p,std::vector<ctext_typ>(((n/B) ? n/B : 1)));
 
@@ -66,14 +69,14 @@ int main(int argc, char* argv[]){
         }
         
         //calculate xT * X
-        ctext_matrix quotient = matrix_mult(pc,xT,x);
+        ctext_matrix product = matrix_mult(pc,xT,x);
 
         std::ofstream q("ctexts/product_left.ctext");
 
-        //writing quotient to file for next steps
-        for(int i=0;i<quotient.size();i++){
-            for(int j=0;j<quotient[0].size();j++){
-                Serial::Serialize(quotient[i][j],q,SerType::BINARY);
+        //writing product to file for next steps
+        for(int i=0;i<product.size();i++){
+            for(int j=0;j<product[0].size();j++){
+                Serial::Serialize(product[i][j],q,SerType::BINARY);
             }
         }
     }
