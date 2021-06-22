@@ -11,7 +11,7 @@ secondMultWriter = csv.writer(secondMultFile,csv.get_dialect('excel'))
 sgxWriter = csv.writer(sgxFile,csv.get_dialect('excel'))
 
 dP = 8
-dN = 5000
+dN = 5000000
 
 for i in range(2,13):
     row = [i,dN]
@@ -36,7 +36,7 @@ for i in range(2,13):
         print(f'{i} {j} inverse complete, results: ')
         print(result.stdout)
 
-for i in range(1000,10000,1000):
+for i in range(1000000,10000000,1000000):
     row = [dP,i]
     subprocess.run(['./makeData','-p',f'{dP}','-n',f'{i}'])
     print(f'{dP}, {i} data created, running test')
