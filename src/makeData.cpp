@@ -64,22 +64,22 @@ int main(int argc, char* argv[]){
             rawValues[i].push_back(tmp);
         }
     }
-
     transpose(pc,rawValues,p,n,N);
+    std::cout << "transpose" << std::endl;
     original(pc,rawValues,p,n,N);
+    std::cout << "original " << std::endl;
 
-	std::vector<ctext_typ> y(floor(n/N) ? floor(n/N) : 1);
+	std::vector<ctext_typ> y(ceil((n*1.0)/N));
 
     std::ofstream yfile("ctexts/dependent.ctext");
 
-    for(int i=0;i<(floor((i*1.0)/N) ? floor((i*1.0)/N) : 1); i++){
+    for(int i=0;i<ceil((n*1.0)/N); i++){
         std::vector<double> tmp(N,0);
         y[i] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
     }
 
-
     for(int i=0;i<n;i++){
-
+        
         int index = floor((i*1.0)/N);
         std::vector<double> tmp(N,0);
 
@@ -93,7 +93,8 @@ int main(int argc, char* argv[]){
         //ctx = rotate(pc,ctx,i%N);
         pc.context->EvalAddInPlace(y[index],ctx);
     } 
-    for(int i=0;i<(floor(n/N) ? floor(n/N) : 1) ;i++){
+
+    for(int i=0;i<ceil((n*1.0)/N);i++){
         Serial::Serialize(y[i],yfile,SerType::BINARY);
     }
 
@@ -107,7 +108,7 @@ void original(const PALISADEContainer& pc, const std::vector<std::vector<double>
     ctext_matrix matrix(n,std::vector<ctext_typ>(p));
 
     for(int col=0; col<p;col++){
-        for(int row=0; row<=floor((n*1.0)/N);row++){
+        for(int row=0; row<=ceil((n*1.0)/N);row++){
             //initializing ciphertexts for x
             std::vector<double> tmp = {0};
             matrix[row][col] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
@@ -137,7 +138,7 @@ void original(const PALISADEContainer& pc, const std::vector<std::vector<double>
 
     std::ofstream mat("ctexts/original.ctext");
     for(int col=0; col<p;col++){
-        for(int row=0; row<=floor((n*1.0)/N);row++){
+        for(int row=0; row<ceil((n*1.0)/N);row++){
             Serial::Serialize(matrix[row][col],mat,SerType::BINARY);
         }
     }
@@ -149,7 +150,7 @@ void transpose(const PALISADEContainer& pc, const std::vector<std::vector<double
 
     for(int row=0;row<p;row++){
         //initializing the ciphertexts for x^T
-        for(int col=0;col<=floor((n*1.0)/N);col++){
+        for(int col=0;col<ceil((n*1.0)/N);col++){
             std::vector<double> tmp = {0};
             matrix[row][col] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
         }
@@ -176,9 +177,10 @@ void transpose(const PALISADEContainer& pc, const std::vector<std::vector<double
         
     }
 
+
     std::ofstream tpose("ctexts/transpose.ctext");
     for(int row=0; row<p;row++){
-        for(int col=0; col<=floor((n*1.0)/N);col++){
+        for(int col=0; col<ceil((n*1.0)/N);col++){
             Serial::Serialize(matrix[row][col],tpose,SerType::BINARY);
         }
     }

@@ -4,9 +4,13 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
+#include <chrono> 
 
+typedef std::chrono::high_resolution_clock clk;
 
 int main(int argc, char* argv[]){
+
+    auto beginning = clk::now();
  
     size_t n;
     size_t p;
@@ -36,9 +40,13 @@ int main(int argc, char* argv[]){
             exit(EXIT_FAILURE);
     }
     //read in container made by makeData
+    auto start = clk::now();
     PALISADEContainer pc(ctr,true);
     size_t N = (pc.context->GetCyclotomicOrder() >> 2);
     size_t B = N/2; //need for batching
+    auto end = clk::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << duration.count() << std::endl;
 
     //hard coded names: could change
     std::ifstream original("ctexts/original.ctext");
@@ -50,38 +58,76 @@ int main(int argc, char* argv[]){
     }
     else{
 
-        ctext_matrix x((n/B) ? n/B : 1,std::vector<ctext_typ>(p));
-        ctext_matrix xT(p,std::vector<ctext_typ>(((n/B) ? n/B : 1)));
+        ctext_matrix x(ceil((n*1.0)/B),std::vector<ctext_typ>(p));
+        ctext_matrix xT(p,std::vector<ctext_typ>(ceil((n*1.0)/B)));
 
         //reading in the original X
+        start = clk::now();
         for(int col=0;col<p;col++){
-            for(int row=0;row<(floor(n/N)+1);row++){
+            for(int row=0;row<ceil((1.0*n)/B);row++){
                 Serial::Deserialize(x[row][col],original,SerType::BINARY);
                 
             }
         }
+        end = clk::now();
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+        std::cout << duration.count() << std::endl;
 
-        //reading in xT
+        //reading in xT        
+        start = clk::now();
         for(int row=0;row<p;row++){
-            for(int col=0;col<(floor(n/N)+1);col++){
+            for(int col=0;col<ceil((n*1.0)/B);col++){
                 Serial::Deserialize(xT[row][col],transpose,SerType::BINARY);
             }
         }
+        end = clk::now();
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+        std::cout << duration.count() << std::endl;
+
         
         //calculate xT * X
+        start = clk::now();
         ctext_matrix product = matrix_mult(pc,xT,x);
+        end = clk::now();
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+        std::cout << duration.count() << std::endl;
+ 
+
+
+        /*ctext_matrix prod2 = matrix_mult_from_tranpose(pc,xT);
+        std::cout << "HERE" <<std::endl;
+
+        for(int i=0;i<prod2.size();i++){
+            for(int j=0;j<prod2[0].size();j++){
+
+                Plaintext ptx;
+                pc.context->Decrypt(pc.sk,prod2[i][j],&ptx);
+                double val =0;
+                std::vector<double> tmp = ptx->GetRealPackedValue();
+                for(int k=0; k<tmp.size(); k++){
+                    val += tmp[k];
+                }
+                std::cout << val << " ";
+            }
+            std::cout << std::endl;
+        } */
+
+
 
         std::ofstream q("ctexts/product_left.ctext");
 
         //writing product to file for next steps
+        start = clk::now();
         for(int i=0;i<product.size();i++){
             for(int j=0;j<product[0].size();j++){
                 Serial::Serialize(product[i][j],q,SerType::BINARY);
             }
         }
+        end = clk::now();
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+        std::cout << duration.count() << std::endl;
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(end-beginning);
+        std::cout << duration.count() << std::endl;
     }
-
-
-
-    
+  
 }

@@ -5,8 +5,10 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 using namespace lbcrypto;
+typedef std::chrono::high_resolution_clock clk;
 
 void cofactors(vector<vector<double>>& m, vector<vector<double>>& cofs, int p, int q, int n);
 
@@ -19,6 +21,7 @@ void inverse(vector<vector<double>>& m, int p);
 vector<vector<double>> multiply(vector<vector<double>>& m1, vector<vector<double>>& m2);
 
 int main(int argc, char *argv[]) {
+	auto beginning = clk::now();
 
 	// Parse Command Line Arguments 
 	size_t n, p;
@@ -41,10 +44,16 @@ int main(int argc, char *argv[]) {
 
 	// Read in X' times X data and decrypt
 	std::string ctr = "container";
+	auto start = clk::now();
 	PALISADEContainer pc(ctr, true);
+	auto end = clk::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+	std::cout << duration.count() << std::endl;
+
 	vector<vector<double>> prod_left(p);
 	std::ifstream left_f("ctexts/product_left.ctext");
 
+	start = clk::now();
 	for (int i = 0; i < p; i++) {
 		for (int j = 0; j < p; j++) {
 			Plaintext pt;
@@ -59,11 +68,14 @@ int main(int argc, char *argv[]) {
 			prod_left[i].push_back(value);
 		}
 	}
+	end = clk::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+	std::cout << duration.count() << std::endl;
 
 	// Read in X' times y data and decrypt
 	vector<vector<double>> prod_right(p);
 	std::ifstream right_f("ctexts/product_right.ctext");
-
+	start = clk::now();
 	for (int i = 0; i < p; i++) {
 		Plaintext pt;
 		Ciphertext<DCRTPoly> ct;
@@ -76,16 +88,28 @@ int main(int argc, char *argv[]) {
 		}
 		prod_right[i].push_back(value);
 	}
+	end = clk::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+	std::cout << duration.count() << std::endl;
 
 	
 	// Run inverse algorithm on X'X
+	start = clk::now();
 	inverse(prod_left, p);
+	end = clk::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+	std::cout << duration.count() << std::endl;
 	
 	// Multiply (X'X)^-1 and (X'y) to get beta vector
+	start = clk::now();
 	vector<vector<double>> res = multiply(prod_left, prod_right);
+	end = clk::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+	std::cout << duration.count() << std::endl;
 
 	// Write p x 1 beta vector to beta.txt
 	FILE* beta = fopen("result/beta.txt", "w+");
+	start = clk::now();
 	if (!beta) {
 		fprintf(stderr, "Unable to open beta.txt: %s\n", strerror(errno));
 		return EXIT_FAILURE;
@@ -94,6 +118,11 @@ int main(int argc, char *argv[]) {
 		fprintf(beta, "%f\n", res[i][0]);
 	}
 	fclose(beta);
+	end = clk::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+	std::cout << duration.count() << std::endl;
+	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-beginning);
+	std::cout << duration.count() << std::endl;
 		
 	return 0;
 }
