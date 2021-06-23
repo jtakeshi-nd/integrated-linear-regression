@@ -12,10 +12,9 @@ sgxWriter = csv.writer(sgxFile,csv.get_dialect('excel'))
 
 dP = 8
 dN = 5000000
-
+subprocess.run(['./makeData','-p','12','-n','10000000'])
 for i in range(2,13):
     row = [i,dN]
-    subprocess.run(['./makeData','-p',f'{i}','-n',f'{dN}'])
     print(f'{i}, {dN} data created, running test')
     for j in range(10):
         result = subprocess.run(['./firstMult','-p',f'{i}','-n',f'{dN}'],stdout = subprocess.PIPE)
@@ -33,9 +32,8 @@ for i in range(2,13):
         sgxWriter.writerow(sgxRow)
         print(f'{i} {j} inverse complete')
 
-for i in range(1000000,10000000,1000000):
+for i in range(1000000,10000001,100000):
     row = [dP,i]
-    subprocess.run(['./makeData','-p',f'{dP}','-n',f'{i}'])
     print(f'{dP}, {i} data created, running test')
     for j in range(10):
         result = subprocess.run(['./firstMult','-p',f'{dP}','-n',f'{i}'],stdout = subprocess.PIPE)
