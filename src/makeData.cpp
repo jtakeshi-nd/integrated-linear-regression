@@ -73,11 +73,13 @@ int main(int argc, char* argv[]){
 
     std::ofstream yfile("ctexts/dependent.ctext");
 
-    for(int i=0;i<ceil((n*1.0)/N); i++){
+#pragma omp parallel for
+    for(int i=0;i<(int)ceil((n*1.0)/N); i++){
         std::vector<double> tmp(N,0);
         y[i] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
     }
 
+//#pragma omp parallel for
     for(int i=0;i<n;i++){
         
         int index = floor((i*1.0)/N);
@@ -107,15 +109,16 @@ int main(int argc, char* argv[]){
 void original(const PALISADEContainer& pc, const std::vector<std::vector<double>>& rawValues, const size_t& p, const size_t& n, const size_t& N){
     ctext_matrix matrix(n,std::vector<ctext_typ>(p));
 
+#pragma omp parallel for collapse(2)
     for(int col=0; col<p;col++){
-        for(int row=0; row<=ceil((n*1.0)/N);row++){
+        for(int row=0; row<=(int)ceil((n*1.0)/N);row++){
             //initializing ciphertexts for x
             std::vector<double> tmp = {0};
             matrix[row][col] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
         }
     }
 
-
+#pragma omp parallel for collapse(2)
     for(int j=0; j<p;j++){ //create the ciphertexts to be batched 
         //batching in col
         for(int i=0; i<n;i++){
@@ -148,15 +151,16 @@ void transpose(const PALISADEContainer& pc, const std::vector<std::vector<double
 
     ctext_matrix matrix(p,std::vector<ctext_typ>(n));
 
+#pragma omp parallel for collapse(2)
     for(int row=0;row<p;row++){
         //initializing the ciphertexts for x^T
-        for(int col=0;col<ceil((n*1.0)/N);col++){
+        for(int col=0;col<(int)ceil((n*1.0)/N);col++){
             std::vector<double> tmp = {0};
             matrix[row][col] = pc.context->Encrypt(pc.pk,pc.context->MakeCKKSPackedPlaintext(tmp));
         }
     }
 
-
+#pragma omp parallel for collapse(2)
     for(int j=0; j<p;j++){ //create the ciphertexts to be batched 
         //batching in row
         for(int i=0; i<n;i++){
