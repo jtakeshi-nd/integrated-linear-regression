@@ -11,11 +11,8 @@ using namespace lbcrypto;
 typedef std::chrono::high_resolution_clock clk;
 
 void cofactors(vector<vector<double>>& m, vector<vector<double>>& cofs, int p, int q, int n);
-
 double determinant(vector<vector<double>>& m, int n, int p);
-
 void adjoint(vector<vector<double>>& m, vector<vector<double>>& a, int p);
-
 void inverse(vector<vector<double>>& m, int p);
 
 vector<vector<double>> multiply(vector<vector<double>>& m1, vector<vector<double>>& m2);
@@ -42,14 +39,16 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	// Read in X' times X data and decrypt
+	//read in PALISADEContainer made in makeData
 	std::string ctr = "container";
+
 	auto start = clk::now();
 	PALISADEContainer pc(ctr, true);
 	auto end = clk::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
 	std::cout << duration.count() << std::endl;
 
+	// Read in XT times X data and decrypt
 	vector<vector<double>> prod_left(p);
 	std::ifstream left_f("ctexts/product_left.ctext");
 
@@ -62,17 +61,18 @@ int main(int argc, char *argv[]) {
 			pc.context->Decrypt(pc.sk, ct, &pt);
 			std::vector<double> tmp = pt->GetRealPackedValue();
 			double value = 0;
-			for (int i = 0; i < tmp.size(); i++) {
+			for (int i = 0; i < tmp.size(); i++) { //have to sum all slots to complete matrix multiplication
 				value += tmp[i];
 			}
 			prod_left[i].push_back(value);
 		}
 	}
+
 	end = clk::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
 	std::cout << duration.count() << std::endl;
 
-	// Read in X' times y data and decrypt
+	// Read in XT times y data and decrypt
 	vector<vector<double>> prod_right(p);
 	std::ifstream right_f("ctexts/product_right.ctext");
 	start = clk::now();
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 		pc.context->Decrypt(pc.sk, ct, &pt);
 		std::vector<double> tmp = pt->GetRealPackedValue();
 		double value = 0;
-		for (int i =0; i < tmp.size(); i++) {
+		for (int i =0; i < tmp.size(); i++) { //have to sum all slots to complete matrix multiplication
 			value += tmp[i];
 		}
 		prod_right[i].push_back(value);
@@ -114,9 +114,11 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Unable to open beta.txt: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
+
 	for (int i = 0; i < res.size(); i++) {
 		fprintf(beta, "%f\n", res[i][0]);
 	}
+
 	fclose(beta);
 	end = clk::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
@@ -128,7 +130,7 @@ int main(int argc, char *argv[]) {
 }
 
 vector<vector<double>> multiply(vector<vector<double>>& m1, vector<vector<double>>& m2) {
-
+	//returns a matrix product of two matrices
 
 	vector<vector<double>> result(m1.size(), vector<double>(m2[0].size()));
 	for (int i = 0; i < m1.size(); i++) {
@@ -142,6 +144,7 @@ vector<vector<double>> multiply(vector<vector<double>>& m1, vector<vector<double
 }
 
 void cofactors(vector<vector<double>>& m, vector<vector<double>>& cofs, int p, int q, int n) {
+	//writes cofactor matrix of matrix m to cofs
 	int i = 0;
 	int j = 0;
 	for (int r = 0; r < n; r++) {
@@ -160,6 +163,7 @@ void cofactors(vector<vector<double>>& m, vector<vector<double>>& cofs, int p, i
 }	
 
 double determinant(vector<vector<double>>& m, int n, int p) {
+	//returns determinant of matrix m
 	double det = 0;
 	if (n == 1) {
 		return m[0][0];
@@ -177,6 +181,7 @@ double determinant(vector<vector<double>>& m, int n, int p) {
 }
 
 void adjoint(vector<vector<double>>& m, vector<vector<double>>& a, int p) {
+	//finds the adjoint matrix of matrix m and writes to a
 
 	if (p == 1) {
 		a[0][0] = 1;
@@ -195,6 +200,7 @@ void adjoint(vector<vector<double>>& m, vector<vector<double>>& a, int p) {
 }
 
 void inverse(vector<vector<double>>& m, int p) {
+	//finds the inverse of matrix m, exits silently if matrix is not invertible
 	double det = determinant(m, p, p);
 	if (det == 0) {
 		return;

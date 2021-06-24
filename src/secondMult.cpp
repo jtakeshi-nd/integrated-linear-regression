@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
     auto beginning = clk::now();
     size_t p;
     size_t n;
-    std::string container = "container";
+    std::string container = "container"; //default name for directory container PALISADEConainer
 
     for(int i=1;i<argc;i++){
         if(argv[i][0]=='-'){
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]){
     std::cout << duration.count() << std::endl;
 
     start = clk::now();
+    //calculating the product
     ctext_matrix product = matrix_mult(pc,xT,y);
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
@@ -84,6 +85,7 @@ int main(int argc, char* argv[]){
     std::ofstream out("ctexts/product_right.ctext");
 
     start = clk::now();
+    //writing to file
     for(int i=0; i<product.size(); i++){
         for(int j=0;j<product[0].size();j++){
             Serial::Serialize(product[i][j],out,SerType::BINARY);
@@ -92,6 +94,7 @@ int main(int argc, char* argv[]){
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     std::cout << duration.count() << std::endl;
+    //total time to run execution
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-beginning);
     std::cout << duration.count() << std::endl;
 

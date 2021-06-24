@@ -55,35 +55,6 @@ public:
   unsigned int _plain_modulus = 0;
   unsigned int depth = 0;
 
-  /*
-  //PALISADEContainer operator=(const PALISADEContainer & other) = default;
-  //TODO may have to redefine these macros, or remove altogether
-  //See https://gitlab.com/palisade/palisade-development/-/blob/master/src/pke/examples/simple-integers-serial.cpp
-  //This constructor is for BGV - see new one below for CKKS
-  PALISADEContainer(const unsigned int plain_in = PLAIN_DEFAULT, const unsigned int depth_in = DEPTH_DEFAULT, 
-                    const unsigned int slots_in = BATCHSIZE_DEFAULT) : _plain_modulus(plain_in), depth(depth_in) {
-    //See https://gitlab.com/palisade/palisade-release/-/blob/master/src/pke/include/cryptocontext.h
-    context = CryptoContextFactory<DCRTPoly>::genCryptoContextBGVrns(depth, _plain_modulus, SECURITY, SIGMA, depth, OPTIMIZED, BV);
-    //context = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(16384, 65537);
-
-    context->Enable(ENCRYPTION);
-    context->Enable(SHE);
-    context->Enable(LEVELEDSHE);
-    
-
-    LPKeyPair<DCRTPoly> keyPair = context->KeyGen();
-    if (!keyPair.good()) {
-      std::cerr << "Key generation failed!" << std::endl;
-      exit(1);
-    }
-    pk = keyPair.publicKey;
-    sk = keyPair.secretKey;
-
-    context->EvalMultKeysGen(sk);
-    this->_has_secret_key = true;
-  }
-  */
-
   //CKKS constructor - quick+dirty impl., not parameterized
   //Default for m should be 8192
   PALISADEContainer(/* unsigned int m, */ unsigned int depth_in /*, unsigned int p*/){
@@ -115,29 +86,6 @@ public:
     context->EvalMultKeysGen(sk);
     this->_has_secret_key = true;
 
-
-    /*
-    //Rotation keys no longer needed
-    //Generate rotation keys for ((N/2)/D)+1 of the indices
-    //Let's start with (N/2)/D = 2, for a 50% reduction in the key switching
-    vector<int> indices;
-    int B = N/2;
-    int reduction_factor = sqrt(B); //Factor we want to reduce by
-    int D = B/reduction_factor; //Step size - need to generate all keys from 1 to D, and all multiples of D
-    indices.reserve(D+(reduction_factor));
-    //This loop would go up to <= D, but that's handled in the next one
-    for(int i = 1; i < D; i++){
-      indices.push_back(i);
-    }
-    //All the multiples of D, up to the batch size
-    for(int i = D; i < B; i += D){
-      indices.push_back(i);
-    }
-
-    //Hopefully this does not take up too much memory
-    //May have to serialize these
-    cc->EvalAtIndexKeyGen(sk, indices);
-    */
   }
 
   PALISADEContainer(unsigned int depth_in, unsigned int m /*, unsigned int p*/){
@@ -146,11 +94,6 @@ public:
     unsigned int batchSize = m / 4;
     
     unsigned int primes = depth+1; //ok for thousands of additions, not millions
-    /*
-    if(primes >= 3){
-      primes--;
-    }
-    */
 
     context =
       CryptoContextFactory<DCRTPoly>::genCryptoContextCKKSWithParamsGen(
@@ -195,30 +138,6 @@ public:
     return sk;
   }
   
-  /*
-  int serialize(std::ostream & os, const bool save_sk){
-    //Context
-    if(!Serial::Serialize(context, os, SERIAL_FORMAT)){
-      return 1;
-    }
-    //Public key 
-    if(!Serial::Serialize(keyPair.publicKey, os, SERIAL_FORMAT)){
-      return 1;
-    }
-    
-    //Relin. keys
-    if(!this->context->SerializeEvalMultKey(os, SERIAL_FORMAT)){
-      return 1;
-    }
-    //Secret key always saved last
-    if(save_sk){
-      if(!Serial::Serialize(keyPair.secretKey, os, SERIAL_FORMAT)){
-        return 1;
-      }
-    }
-    return 0;
-  }
-  */
 
   int serialize(const std::string & ofname, const bool save_sk){
     //Context
@@ -255,59 +174,8 @@ public:
       }
     }
     //With separate files, the order doesn't matter
-    /*
-    std::string rot_file = ofname + '/' + ROTKEY_FILE;
-    std::ofstream rots(rot_file, std::ios::out | std::ios::binary);
-    if(!rots.is_open()){
-      std::cerr << "ERROR: failed to open ROTKEY file " << rlk_file << std::endl;
-      return 1;
-    }
-    if(!context->SerializeEvalAutomorphismKey(rots, SERIAL_FORMAT)){
-      std::cerr << "Failed to write rotkey: " << rlk_file << std::endl;
-      return 1;
-    }
-    */
     return 0;
   }
-
-  /*
-  int serialize(std::string & ofname, const bool save_sk){
-    std::ofstream ofs(ofname);
-    return this->serialize(ofs, save_sk);
-  }
-  */
-  
-  /*
-  int deserialize(std::istream & is, const bool load_sk){
-    //Context
-    if(!Serial::Deserialize(context, is, SERIAL_FORMAT)){
-      return 1;
-    }
-    //Public key 
-    if(!Serial::Deserialize(keyPair.publicKey, is, SERIAL_FORMAT)){
-      return 1;
-    }
-    //Relin. keys
-    if(!this->context->DeserializeEvalMultKey(is, SERIAL_FORMAT)){
-      return 1;
-    }
-    //Secret key always saved last
-    if(load_sk){
-      if(!Serial::Deserialize(keyPair.secretKey, is, SERIAL_FORMAT)){
-        return 1;
-      }
-    }
-    this->_has_secret_key = load_sk;
-    return 0;
-  }
-  */
-
-  /*
-  int deserialize(const std::string & fname, const bool load_sk){
-    std::ifstream ifs(fname);
-    return this->deserialize(ifs, load_sk);
-  }
-  */
 
   int deserialize(const std::string & fname, const bool load_sk){
     //Context
@@ -339,17 +207,6 @@ public:
         return 1;
       }
     }
-    /*
-    std::string rot_file = fname + '/' + ROTKEY_FILE;
-    std::ifstream rots(rot_file, std::ios::in | std::ios::binary);
-    if(!rots.is_open()){
-      return 1;
-    }
-    if(!context->DeserializeEvalAutomorphismKey(rots, SERIAL_FORMAT)){
-      std::cerr << "ERROR: failed to deserialize rotation keys from " << rot_file << std::endl;
-      return 1;
-    }
-    */
     return 0;
   }
   

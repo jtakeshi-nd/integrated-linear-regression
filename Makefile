@@ -14,7 +14,7 @@ initialize:
 	touch bin/result/beta.txt
 
 $(BINARIES)/% : src/%.cpp $(linearIncludes)
-	$(CXX) $(PALISADE_INCLUDES) -o $@ $< -L $(PALISADE_DYNAMIC_LIBS_LOCATION) $(PALISADE_DYNAMIC_LIBS) -Wl,-rpath=$(PALISADE_DYNAMIC_LIBS_LOCATION) -pthread -fopenmp -O3
+	$(CXX) $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS) -L $(PALISADE_DYNAMIC_LIBS_LOCATION) $(PALISADE_DYNAMIC_LIBS) -Wl,-rpath=$(PALISADE_DYNAMIC_LIBS_LOCATION) -pthread -fopenmp -O3
 
 clean:
 	rm -f bin/inverse
