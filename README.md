@@ -1,31 +1,42 @@
 Linear Regression - Integrated Homomorphic Encryption and Intel SGX with Graphene
 
-1. make clean
-2. make initialize
-3. make
+1. `make`
+2. `cd bin`
+3. `make SGX=1 -f mk_graphene inverse.manifest.sgx inverse.token pal_loader`
 
 Generate random data with specified n (users) and p (feature values) <br/>
-4. :~/integrated-linear-regression/bin$ ./makeData -n 3 -p 3
+-   `./makeData -n [value] -p [value]`
 
-- This creates ctexts/dependent.ctext, ctexts/original.ctext, ctexts/tranpose.ctext
-- Also creates PALISADEContainer
+    - This creates ctexts/dependent.ctext, ctexts/original.ctext, ctexts/tranpose.ctext
+    - Also creates PALISADEContainer in container directory
 
 
 Run X (transpose) times X and write result to file <br />
-5. :~/integrated-linear-regression/bin$ ./specialMult -n 3 -p 3
+- `./firstMult -n [value] -p [value]`
 
-- This creates product_left.ctext (will be read into SGX)
+    - This creates product_left.ctext (will be read into SGX)
+    - Note: values of p and n must be <= the values specified in makeData
 
 
 Run X (transpose) times y and write result to file <br />
-6. :~/integrated-linear-regression/bin$ ./secondMult -n 3 -p 3 
+-   `./secondMult -n [value] -p [value] `
 
-- This creates product_right.ctext (will be read into SGX)
+    - This creates product_right.ctext (will be read into SGX)
+    - Note: values of p and n must be <= the values specified in makeData
 
 
 Compute inverse of left product (X'X) and multiply by right product (X'y) to get beta vector in SGX <br />
-7. :~/integrated-linear-regression/bin$ make SGX=1 -f mk_graphene inverse.manifest.sgx inverse.token pal_loader <br />
-8. :~/integrated-linear-regression/bin$ SGX=1 OMP_NUM_THREADS=1 ./pal_loader ./inverse -p 3 <br />
+- `SGX=1 OMP_NUM_THREADS=1 ./pal_loader ./inverse -p [value] -n [value]` <br />
 
 
-- Final result of linear regression (beta vector) ouputted to result/beta.txt
+  - Final result of linear regression (beta vector) ouputted to result/beta.txt
+
+To run overall test of linear regression and capture timing: <br />
+- `./timing.py` <br />
+    -  This will run a test of the linear regression program with varying p and n values
+       -  p ranges from 2-12
+       -  n ranges from 1,000,000 to 10,000,000 in 1,000,000 increments
+    -  Results will be written to
+       -  result/firstMult.csv
+       -  result/secondMult.csv
+       -  result/sgx.csv
