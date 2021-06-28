@@ -19,7 +19,7 @@ sgxWriter = csv.writer(sgxFile,csv.get_dialect('excel'))
 #default values for p and n
 dP = 8
 dN = 5000000
-subprocess.run(['./makeData','-p','12','-n','10000000']) #making the data, will take >24 hours
+subprocess.run(['./newMake','-p','12','-n','10000000']) #making the data, will take >24 hours
 for i in range(2,13): #modifying p
     row = [i,dN]
     for j in range(10): #run each 10 times to get an average

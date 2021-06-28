@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
+#include <ios>
 #include <chrono> 
 
 typedef std::chrono::high_resolution_clock clk;
@@ -56,11 +57,13 @@ int main(int argc, char* argv[]){
 
     //reading in the original X
     start = clk::now();
-    for(int col=0;col<p;col++){
-        for(int row=0;row<ceil((1.0*n)/B);row++){
+    for(int row=0;row<ceil((1.0*n)/B);row++){
+        for(int col=0;col<p;col++){
             Serial::Deserialize(x[row][col],original,SerType::BINARY);
             
         }
+        original.clear();
+        original.seekg(0,std::ios::beg);
     }
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
@@ -68,10 +71,12 @@ int main(int argc, char* argv[]){
 
     //reading in xT        
     start = clk::now();
-    for(int row=0;row<p;row++){
-        for(int col=0;col<ceil((n*1.0)/B);col++){
+    for(int col=0;col<ceil((n*1.0)/B);col++){
+        for(int row=0;row<p;row++){
             Serial::Deserialize(xT[row][col],transpose,SerType::BINARY);
         }
+        transpose.clear();
+        transpose.seekg(0,std::ios::beg);
     }
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
