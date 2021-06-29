@@ -6,7 +6,7 @@ Dependencies:
 - Graphene
   - [Build Directions](https://graphene.readthedocs.io/en/latest/)
 
-Build:
+Build
 1. `make`
 2. `cd bin`
 3. `make SGX=1 -f mk_graphene inverse.manifest.sgx inverse.token pal_loader`
