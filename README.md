@@ -1,5 +1,12 @@
 Linear Regression - Integrated Homomorphic Encryption and Intel SGX with Graphene
 
+Dependencies:
+- PALISADE
+  - [Github Repository](https://gitlab.com/ted537/palisade-development)
+- Graphene
+  - [Build Directions](https://graphene.readthedocs.io/en/latest/)
+
+Build:
 1. `make`
 2. `cd bin`
 3. `make SGX=1 -f mk_graphene inverse.manifest.sgx inverse.token pal_loader`
