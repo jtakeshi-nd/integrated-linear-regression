@@ -2,6 +2,7 @@
 import subprocess
 import csv
 import os
+import time
 '''Python script to test linear regression using PALISADE and Intex SGX with Graphene
     captures output of all the files (time to complete individual portions, and writes to csv files
     any errors will still be written to terminal'''
@@ -15,29 +16,38 @@ sgxFile = open('result/sgx.csv','w')
 firstMultWriter = csv.writer(firstMultFile,csv.get_dialect('excel'))
 secondMultWriter = csv.writer(secondMultFile,csv.get_dialect('excel'))
 sgxWriter = csv.writer(sgxFile,csv.get_dialect('excel'))
+parallelWriter = csv.writer(open("result/parallel.csv",'w'),csv.get_dialect('excel'))
 
 #default values for p and n
-dP = 8
+dP = 10
 dN = 5000000
-subprocess.run(['./newMake','-p','12','-n','10000000']) #making the data, will take >24 hours
+#subprocess.run(['./newMake','-p','12','-n','100000']) #making the data, will take >24 hours
 for i in range(2,13): #modifying p
     row = [i,dN]
     for j in range(10): #run each 10 times to get an average
+        env = os.environ
+        env['OMP_NUM_THREADS']='12'
 
         #perform first multiplication
-        result = subprocess.run(['./firstMult','-p',f'{i}','-n',f'{dN}'],stdout = subprocess.PIPE)
-        firstMultRow = row + bytes.decode(result.stdout).strip().split('\n')
-        firstMultWriter.writerow(firstMultRow)
-        print(f'{i} {j} first mult complete')
-
+        start = time.time()
+        result = subprocess.Popen(['./firstMult','-p',f'{i}','-n',f'{dN}'],stdout = subprocess.PIPE)
+        
+        env['OMP_NUM_THREADS']='10'
         #perform second multiplication
-        result = subprocess.run(['./secondMult','-p',f'{i}','-n',f'{dN}'],stdout=subprocess.PIPE)
-        secondMultRow = row + bytes.decode(result.stdout).strip().split('\n')
+        result2 = subprocess.Popen(['./secondMult','-p',f'{i}','-n',f'{dN}'],stdout=subprocess.PIPE)
+
+        result.wait()
+        result2.wait()
+        end = time.time()
+        parallelWriter.writerow([end-start])
+        firstMultRow = row + bytes.decode(result.stdout.read()).strip().split('\n')
+        firstMultWriter.writerow(firstMultRow)
+
+        secondMultRow = row + bytes.decode(result2.stdout.read()).strip().split('\n')
         secondMultWriter.writerow(secondMultRow)
-        print(f'{i} {j} second mult complete')
+
 
         #have to modify environ variables to run with SGX using pal_loader
-        env = os.environ
         env['SGX'] = '1'
         env['OMP_NUM_THREADS']='1'
         
@@ -50,20 +60,31 @@ for i in range(2,13): #modifying p
 for i in range(1000000,10000001,1000000): #modifying n
     row = [dP,i]
     for j in range(10):
+        env = os.environ
         #running first multiplication
-        result = subprocess.run(['./firstMult','-p',f'{dP}','-n',f'{i}'],stdout = subprocess.PIPE)
-        firstMultRow = row + bytes.decode(result.stdout).strip().split('\n')
-        firstMultWriter.writerow(firstMultRow)
-        print(f'{i} {j} first mult complete')
+        start = time.time()
+        env['OMP_NUM_THREADS']='12'
+        result = subprocess.Popen(['./firstMult','-p',f'{dP}','-n',f'{i}'],stdout = subprocess.PIPE)
+        
 
         #running second multiplication
-        result = subprocess.run(['./secondMult','-p',f'{dP}','-n',f'{i}'],stdout=subprocess.PIPE)
-        secondMultRow = row + bytes.decode(result.stdout).strip().split('\n')
+        env['OMP_NUM_THREADS']='10'
+        result2 = subprocess.Popen(['./secondMult','-p',f'{dP}','-n',f'{i}'],stdout=subprocess.PIPE)
+
+        result.wait()
+        result2.wait()
+        end = time.time()
+
+        parallelWriter.writerow([end-start])
+        firstMultRow = row + bytes.decode(result.stdout.read()).strip().split('\n')
+        firstMultWriter.writerow(firstMultRow)
+
+        secondMultRow = row + bytes.decode(result2.stdout.read()).strip().split('\n')
         secondMultWriter.writerow(secondMultRow)
-        print(f'{i} {j} second mult complete')
+
 
         #have to modify environment var to run with SGX using pal_loader
-        env = os.environ
+
         env['SGX'] = '1'
         env['OMP_NUM_THREADS']='1'
         #running sgx inverse
