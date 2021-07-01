@@ -22,7 +22,7 @@ void original(const PALISADEContainer&, const std::vector<std::vector<double>>&,
 int main(int argc, char* argv[]){
     size_t p = 10; //default value for number of parameters
     size_t n = 10000; //default value for number of data points
-    size_t m = 8192;
+    size_t m = 16384;
 
     for(int i=1; i < argc; i++){
         if(argv[i][0] == '-')
