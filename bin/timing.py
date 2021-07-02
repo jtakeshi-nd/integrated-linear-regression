@@ -26,7 +26,7 @@ for i in range(2,13): #modifying p
     row = [i,dN]
     for j in range(10): #run each 10 times to get an average
         env = os.environ
-        env['OMP_NUM_THREADS']='12'
+        env['OMP_NUM_THREADS']='21'
 
         #perform first multiplication
         start = time.time()
@@ -63,7 +63,7 @@ for i in range(1000000,10000001,1000000): #modifying n
         env = os.environ
         #running first multiplication
         start = time.time()
-        env['OMP_NUM_THREADS']='12'
+        env['OMP_NUM_THREADS']='21'
         result = subprocess.Popen(['./firstMult','-p',f'{dP}','-n',f'{i}'],stdout = subprocess.PIPE)
         
 
