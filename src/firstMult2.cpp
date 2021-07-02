@@ -42,28 +42,41 @@ int main(int argc, char* argv[]){
     PALISADEContainer pc(ctr,true);
     size_t N = (pc.context->GetCyclotomicOrder() >> 2);
     size_t B = N/2; //need for batching
+    size_t num_batched_args = ceil((n*1.0)/B);
 
     auto end = clk::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     std::cout << duration.count() << std::endl;
 
     //hard coded names: could change
-    std::ifstream original("ctexts/original.ctext");
-    std::ifstream transpose("ctexts/transpose.ctext");
+    std::string TRANSPOSE_FILENAME = "ctexts/transpose.ctext";
+    std::vector<std::ifstream *> transpose_fstreams(num_batched_args);
+    
+    std::string ORIGINAL_FILENAME = "ctexts/original.ctext";
+    std::vector<std::ifstream *> original_fstreams(p);
 
+    //Init fstreams
+    for(auto & ptr : transpose_fstreams){
+      ptr = new std::ifstream(TRANSPOSE_FILENAME);
+    }
+    for(auto & ptr : original_fstreams){
+      ptr = new std::ifstream(ORIGINAL_FILENAME);
+    }
 
-    ctext_matrix x(ceil((n*1.0)/B),std::vector<ctext_typ>(p));
-    ctext_matrix xT(p,std::vector<ctext_typ>(ceil((n*1.0)/B)));
+    ctext_matrix x(num_batched_args,std::vector<ctext_typ>(p));
+    ctext_matrix xT(p,std::vector<ctext_typ>(num_batched_args));
 
     //reading in the original X
     /*start = clk::now();
-    for(int row=0;row<ceil((1.0*n)/B);row++){
+    #pragma omp parallel for        
+    for(int row=0;row<num_batched_args;row++){
         for(int col=0;col<p;col++){
-            Serial::Deserialize(x[row][col],original,SerType::BINARY);
-            
+            Serial::Deserialize(x[row][col],*(original_fstreams[col]),SerType::BINARY);   
         }
+        /*
         original.clear();
         original.seekg(0,std::ios::beg);
+        
     }
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
@@ -71,17 +84,35 @@ int main(int argc, char* argv[]){
 
     //reading in xT        
     start = clk::now();
-    for(int col=0;col<ceil((n*1.0)/B);col++){
+    #pragma omp parallel for      
+    for(int col=0;col<num_batched_args;col++){
         for(int row=0;row<p;row++){
-            Serial::Deserialize(xT[row][col],transpose,SerType::BINARY);
+            Serial::Deserialize(xT[row][col],*(transpose_fstreams[col]),SerType::BINARY);
+
         }
+        /*
         transpose.clear();
         transpose.seekg(0,std::ios::beg);
+        */
     }
+
+
+    
+
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     std::cout << duration.count() << std::endl;
 
+
+    //Destroy fstreams
+    for(auto & ptr : transpose_fstreams){
+      delete ptr;
+      ptr = nullptr;
+    }
+    for(auto & ptr : original_fstreams){
+      delete ptr;
+      ptr = nullptr;
+    }
     
     //calculate xT * X
     start = clk::now();

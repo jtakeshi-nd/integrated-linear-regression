@@ -64,25 +64,25 @@ ctext_matrix transpose(const PALISADEContainer& pc, const ctext_matrix& mat){
 
 //Given x^T with data ordered by columns, return X^T*X (ordered by columns)
 ctext_matrix matrix_mult_from_tranpose(const PALISADEContainer & pc, const ctext_matrix & xT){
-    ctext_matrix product(xT.size(), std::vector<ctext_typ>(xT[0].size()));
+    ctext_matrix product(xT.size(), std::vector<ctext_typ>(xT.size()));
     size_t n = xT[0].size();
     size_t p = xT.size();
-    ctext_typ tmp;
     //Go into 2 loops
-//#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
     for(size_t i = 0; i < p; i++){
         for(size_t j = 0; j < p; j++){
+
             //Removed original tmp. var. "sum" - can do it inplace directly on the element
-            std::cout << i << " " << j << std::endl;
-            product[i][j] = pc.context->EvalMult(xT[i][0], xT[j][0]);
+            ctext_typ sum = pc.context->EvalMult(xT[i][0], xT[j][0]);
             //Technically might be able to parallelize this inner loop with OMP reduction
             //Probably much more trouble than it's worth
+            #pragma omp parallel for
             for(size_t k = 1; k < n; k++){
-                std::cout << k << std::endl;
                 //Using a tmp. var. here avoids reallocation
-                tmp = pc.context->EvalMult(xT[i][k], xT[j][k]);
-                pc.context->EvalAddInPlace(product[i][j], tmp);
+                pc.context->EvalAddInPlace(sum,pc.context->EvalMult(xT[i][k], xT[j][k]) );
             }
+
+            product[i][j] = sum;
         }
     }
     return product;
@@ -98,6 +98,7 @@ ctext_matrix matrix_mult(const PALISADEContainer&  pc,const ctext_matrix& matA, 
 
             ctext_typ sum = pc.context->EvalMult(matA[i][0], matB[0][j]);
 
+            #pragma omp parallel for
             for(size_t k=1; k<matA[0].size();k++){
                 pc.context->EvalAddInPlace(sum,pc.context->EvalMult(matA[i][k],matB[k][j]));
             }
