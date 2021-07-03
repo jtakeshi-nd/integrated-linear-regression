@@ -46,26 +46,42 @@ int main(int argc, char* argv[]){
 
     size_t N = pc.context->GetCyclotomicOrder() >>2;
     size_t B = N/2;
+    size_t num_cols = ceil((n*1.0)/B);
 
     //hard coded names: could change
-    std::ifstream transpose("ctexts/transpose.ctext");
+    std::string TRANSPOSE_FILENAME = "ctexts/transpose.ctext";
+    //std::ifstream transpose("ctexts/transpose.ctext");
+    std::vector<std::ifstream *> transpose_fstreams(num_cols);
     std::ifstream dependent("ctexts/dependent.ctext");
 
-    ctext_matrix xT(p,std::vector<ctext_typ>(ceil((n*1.0)/B)));
+    ctext_matrix xT(p,std::vector<ctext_typ>(num_cols));
+    
+    //Init fstreams
+    for(auto & ptr : transpose_fstreams){
+      ptr = new std::ifstream(TRANSPOSE_FILENAME);
+    }
 
     //reading in xT
     start = clk::now();
-    for(int col=0;col<ceil((n*1.0)/B);col++){
+#pragma omp parallel for    
+    for(int col=0;col<num_cols;col++){
         for(int row=0;row<p;row++){
-            Serial::Deserialize(xT[row][col],transpose,SerType::BINARY);
+            Serial::Deserialize(xT[row][col],*(transpose_fstreams[col]),SerType::BINARY);
         }
+        /*
         transpose.clear();
         transpose.seekg(0,std::ios::beg);
+        */
     }
     end = clk::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     std::cout << duration.count() << std::endl;
-
+    
+    //Destroy fstreams
+    for(auto & ptr : transpose_fstreams){
+      delete ptr;
+      ptr = nullptr;
+    }
     
     //reading in y
     ctext_matrix y(ceil((1.0*n)/B), std::vector<ctext_typ>(1));
