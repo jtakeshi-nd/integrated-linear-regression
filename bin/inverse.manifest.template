@@ -39,6 +39,7 @@ sgx.allowed_files.beta = "file:result/beta.txt"
 
 sgx.enclave_size = "1G"
 sgx.nonpie_binary = 1
+sgx.thread_num = 21
 
 sgx.trusted_files.runtime = "file:{{ graphene.runtimedir() }}"
 sgx.trusted_files.arch_libdir = "file:{{ arch_libdir }}/"
