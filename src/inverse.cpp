@@ -133,6 +133,7 @@ vector<vector<double>> multiply(vector<vector<double>>& m1, vector<vector<double
 	//returns a matrix product of two matrices
 
 	vector<vector<double>> result(m1.size(), vector<double>(m2[0].size()));
+	#pragma omp parallel for collapse(2)
 	for (int i = 0; i < m1.size(); i++) {
 		for (int j = 0; j < m2[0].size(); j++) {
 			for (int k = 0; k < m1[0].size(); k++) {
@@ -208,6 +209,7 @@ void inverse(vector<vector<double>>& m, int p) {
 	vector<vector<double>> a(p, vector<double>(p));
 	adjoint(m, a, p);
 
+	#pragma omp parallel for collapse(2)
 	for (int i = 0; i < p; i++) {
 		for (int j = 0; j < p; j++) {
 			m[i][j] = a[i][j]/det;	
