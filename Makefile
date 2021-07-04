@@ -17,10 +17,4 @@ $(BINARIES)/% : src/%.cpp $(linearIncludes)
 	$(CXX) $(PALISADE_INCLUDES) -o $@ $< $(PALISADE_STATIC_LIBS) -L $(PALISADE_DYNAMIC_LIBS_LOCATION) $(PALISADE_DYNAMIC_LIBS) -Wl,-rpath=$(PALISADE_DYNAMIC_LIBS_LOCATION) -pthread -fopenmp -O3
 
 clean:
-	rm -f bin/inverse
-	rm -f bin/firstMult
-	rm -f bin/makeData
-	rm -f bin/secondMult
-	rm -rf bin/container
-	rm -rf bin/ctexts
-	rm -rf bin/result
+	rm -rf bin/inverse bin/firstMult bin/makeData bin/secondMult bin/container bin/ctexts bin/result bin/newMake
