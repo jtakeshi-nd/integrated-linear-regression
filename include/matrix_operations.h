@@ -73,13 +73,13 @@ ctext_matrix matrix_mult_from_tranpose(const PALISADEContainer & pc, const ctext
         for(size_t j = 0; j < p; j++){
 
             //Removed original tmp. var. "sum" - can do it inplace directly on the element
-            ctext_typ sum = pc.context->EvalMult(xT[i][0], xT[j][0]);
+            ctext_typ sum = pc.context->EvalMultNoRelin(xT[i][0], xT[j][0]);
             //Technically might be able to parallelize this inner loop with OMP reduction
             //Probably much more trouble than it's worth
-            #pragma omp parallel for
+            //#pragma omp parallel for
             for(size_t k = 1; k < n; k++){
                 //Using a tmp. var. here avoids reallocation
-                pc.context->EvalAddInPlace(sum,pc.context->EvalMult(xT[i][k], xT[j][k]) );
+                pc.context->EvalAddInPlace(sum,pc.context->EvalMultNoRelin(xT[i][k], xT[j][k]) );
             }
 
             product[i][j] = sum;
@@ -96,11 +96,11 @@ ctext_matrix matrix_mult(const PALISADEContainer&  pc,const ctext_matrix& matA, 
     for(size_t i=0; i< matA.size();i++){
         for(size_t j=0; j < matB[0].size(); j++){
 
-            ctext_typ sum = pc.context->EvalMult(matA[i][0], matB[0][j]);
+            ctext_typ sum = pc.context->EvalMultNoRelin(matA[i][0], matB[0][j]);
 
-            #pragma omp parallel for
+            //#pragma omp parallel for
             for(size_t k=1; k<matA[0].size();k++){
-                pc.context->EvalAddInPlace(sum,pc.context->EvalMult(matA[i][k],matB[k][j]));
+                pc.context->EvalAddInPlace(sum,pc.context->EvalMultNoRelin(matA[i][k],matB[k][j]));
             }
 
             product[i][j] = sum;
